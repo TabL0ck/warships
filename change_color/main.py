@@ -84,7 +84,7 @@ def swap_text_and_background(str):
 
 
 #
-# Test
+# Tests
 #
 def main():
     print(default_text(red_color(freq_blinking_text("Red blinking text"))))
