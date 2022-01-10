@@ -1,6 +1,3 @@
-import config
-from change_color.err_succ import error_case, succ_case
-
 #
 # Основной класс игрока с хранением координат кораблей и их статусов
 #
@@ -20,34 +17,25 @@ class player:
 
     # Пока что пустой инит, мб так и останеться пустым...не знаю
     def __init__(self):
-        if config.DEBUG:
-            succ_case("[SUCCESS] player was created")
+        pass
 
     #
-    # Сеттеры для 1х кораблей
+    # Сеттеры для одинарных кораблей
     #
     def set_first_1x_ship(self,cord):
         self._first_1x_ship = ship_1x(cord)
-        if config.DEBUG:
-            succ_case("[SUCCESS] first 1x ship was created")
 
     def set_second_1x_ship(self,cord):
         self._second_1x_ship = ship_1x(cord)
-        if config.DEBUG:
-            succ_case("[SUCCESS] second 1x ship was created")
     
     def set_third_1x_ship(self, cord):
         self._third_1x_ship = ship_1x(cord)
-        if config.DEBUG:
-            succ_case("[SUCCESS] third 1x ship was created")
     
     def set_fourth_1x_ship(self, cord):
         self._fourth_1x_ship = ship_1x(cord)
-        if config.DEBUG:
-            succ_case("[SUCCESS] fourth 1x ship was created")
         
     #
-    # Геттеры для 1х кораблей
+    # Геттеры для одинарных кораблей
     #
     def get_first_1x_ship(self):
         return self._first_1x_ship
@@ -72,15 +60,11 @@ class ship:
     # Инит, пока что только присваивает кораблю статус "живой"
     def __init__(self):
         self.set_status(True)
-        if config.DEBUG:
-            succ_case("[SUCCESS] ship was created")
 
     # Сеттер для статуса, лучше не ошибайся, а то словишь исключение
     def set_status(self, value):
         if not isinstance(value, bool):
-            if config.DEBUG:
-                error_case("[ERROR] _status can be only bool")
-            raise ValueError('_status can be only bool')
+            raise TypeError("_status can be only bool")
         else:
             self._status = value
     
@@ -92,7 +76,7 @@ class ship:
     # Ваууу, в питоне 3.10 завезли матч кейс
     # Функция, которая преобразовывает буквенную координату в числовую
     #
-    def char_to_int(self, char):
+    def char_to_int(char):
         match char:
             case "a":
                 return 0
@@ -115,8 +99,14 @@ class ship:
             case "j":
                 return 9
             case _:
-                if config.DEBUG:
-                    error_case("[ERROR] x-cord can't be less then a and more then j")
+                return 666
+    
+    def convert_to_int(symbol):
+        try:
+            int(symbol)
+            return True
+        except ValueError:
+            return False
 
 #
 # Класс одинарных кораблей
@@ -130,32 +120,39 @@ class ship_1x(ship):
 
     # Инит, присваивает координаты кораблику с переменной cord которая имеет тип str
     def __init__(self, cord):
-        self.set_x_cord(ship.char_to_int(self, cord[0]))
-        self._y_cord = int(cord[1])
-        ship.__init__(self)
+
+        # Проверка cord на тип str
+        if not isinstance(cord, str):
+            raise TypeError("cord can be only str")
+        # Проверка cord на длину
+        elif len(cord) != 2:
+            raise ValueError("cord lenght always must be 2")
+        # Проверка первого символа на значения [a-j]
+        elif ship.char_to_int(cord[0].lower()) == 666:
+            raise ValueError("first symbol must be in range [a-j]")
+        # Проверка второго символа cord на возможность представить в типе int
+        elif not ship.convert_to_int(cord[1]):
+            raise TypeError("second symbol must be converted to int")
+        # Создание объекта
+        else:
+            self.set_x_cord(ship.char_to_int(cord[0].lower()))
+            self.set_y_cord(int(cord[1]))
+            ship.__init__(self)
 
     # Геттеры для координат, только int и не больше 9
     def set_x_cord(self, value):
         if not isinstance(value, int):
-            if config.DEBUG:
-                error_case("[ERROR] _x_cord can be only int")
-            raise ValueError('_x_cord can be only int')
+            raise TypeError("_x_cord can be only int")
         elif value > 9 or value < 0:
-            if config.DEBUG:
-                error_case("[ERROR] _x_cord can only be in range [0-9]")
-            raise ValueError('_x_cord can be in range [0-9]')
+            raise ValueError("_x_cord can only be in range [0-9]")
         else:
             self._x_cord = value
             
     def set_y_cord(self, value):
         if not isinstance(value, int):
-            if config.DEBUG:
-                error_case("[ERROR] _y_cord can be only int")
-            raise ValueError('_y_cord can be only int')
+            raise TypeError("_y_cord can be only int")
         elif value > 9 or value < 0:
-            if config.DEBUG:
-                error_case("[ERROR] _y_cord can only be in range [0-9]")
-            raise ValueError('_y_cord can be in range [0-9]')
+            raise ValueError("_y_cord can only be in range [0-9]")
         else:
             self._y_cord = value
     
@@ -174,7 +171,8 @@ class ship_1x(ship):
 # Тесты
 #
 def main():
-    obj = ship_1x("a6")
+    oj = player()
+    oj.set_first_1x_ship("b2")
 
 if __name__ == "__main__":
     main()

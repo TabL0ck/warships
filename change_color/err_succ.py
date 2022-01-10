@@ -2,12 +2,16 @@ import sys
 sys.path.insert(1, "/home/arch/Documents/warship_bot")
 
 from change_color.main import *
+
 #
-#Warship_DEBUG_text
+# Вывод сообщения об ошибке красным жирным шрифтом
 #
 def error_case(str):
     print(default_text(bald_text(red_color(str))))
 
+#
+# Вывод сообщения об успехе зеленым жирным шрифтом
+#
 def succ_case(str):
     print(default_text(bald_text(green_color(str))))
 
