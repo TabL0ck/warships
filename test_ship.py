@@ -1,5 +1,5 @@
 import unittest
-from ship import player, ship, ship_1x, ship_2x
+from ship import player, ship, ship_1x, ship_2x, ship_3x, ship_4x
 from change_color.main import green_color, bald_text, default_text
 
 class test_ship(unittest.TestCase):
@@ -162,20 +162,13 @@ class test_ship_1x(unittest.TestCase):
 
         # Проверка функции на правильность вывода
         obj = ship_1x("a0")
-        obj.hit("a0")
         self.assertEqual(obj.cells_around_ship, [(0,1),(1,0),(1,1)])
 
         obj = ship_1x("j9")
-        obj.hit("j9")
         self.assertEqual(obj.cells_around_ship, [(8,8),(8,9),(9,8)])
 
         obj = ship_1x("c3")
-        obj.hit("c3")
         self.assertEqual(obj.cells_around_ship, [(1,2),(1,3),(1,4),(2,2),(2,4),(3,2),(3,3),(3,4)])
-
-        obj = ship_1x("c3")
-        obj.hit("b2")
-        self.assertEqual(obj.cells_around_ship, [])
 
     #
     # Проверка удара по кораблю
@@ -192,9 +185,9 @@ class test_ship_1x(unittest.TestCase):
         self.assertRaises(TypeError, ship_1x("b2").hit, "ak")
 
         # Проверка возвращаемого значения после попадания
-        self.assertEqual(ship_1x("b2").hit("b2"), True)
+        self.assertEqual(ship_1x("b2").hit("b2"), "Убит")
         # Проверка возвращаемого значения после промаха
-        self.assertEqual(ship_1x("b2").hit("b3"), False)
+        self.assertEqual(ship_1x("b2").hit("b3"), "Не попал")
 
         # Проверка статуса корабля после попадания
         obj = ship_1x("b2")
@@ -261,9 +254,9 @@ class test_ship_2x(unittest.TestCase):
         self.assertRaises(TypeError, ship_2x("b2-b1").hit, "ak")
 
         # Проверка возвращаемого значения после попадания
-        self.assertEqual(ship_2x("b2-b1").hit("b2"), True)
+        self.assertEqual(ship_2x("b2-b1").hit("b2"), "Попал")
         # Проверка возвращаемого значения после промаха
-        self.assertEqual(ship_2x("b2-b1").hit("b3"), False)
+        self.assertEqual(ship_2x("b2-b1").hit("b3"), "Не попал")
 
         # Проверка статуса корабля после попадания
         obj = ship_2x("b2-b1")
@@ -288,26 +281,202 @@ class test_ship_2x(unittest.TestCase):
 
         # Проверка функции на правильность вывода
         obj = ship_2x("a0-b0")
-        obj.hit("a0")
-        self.assertEqual(obj.cells_around_ship, [(0,1),(1,1)])
-        obj.hit("b0")
         self.assertEqual(obj.cells_around_ship, [(0,1),(1,1),(2,0),(2,1)])
 
         obj = ship_2x("j9-i9")
-        obj.hit("j9")
-        self.assertEqual(obj.cells_around_ship, [(8,8),(9,8)])
-        obj.hit("i9")
-        self.assertEqual(obj.cells_around_ship, [(8,8),(9,8),(7,8),(7,9)])
+        self.assertEqual(obj.cells_around_ship, [(7,8),(7,9),(8,8),(9,8)])
 
         obj = ship_2x("c3-c4")
-        obj.hit("c3")
-        self.assertEqual(obj.cells_around_ship, [(1,2),(1,3),(1,4),(2,2),(3,2),(3,3),(3,4)])
-        obj.hit("c4")
         self.assertEqual(obj.cells_around_ship, [(1,2),(1,3),(1,4),(2,2),(3,2),(3,3),(3,4),(1,5),(2,5),(3,5)])
 
-        obj = ship_2x("c3-c4")
+
+class test_ship_3x(unittest.TestCase):
+
+    #
+    # Проверка создания обхекта
+    #
+    def test_create(self):
+
+        # Проверка на ошибочный тип cord
+        with self.assertRaises(TypeError):
+            ship_3x(1)
+        # Проверка на длину cord
+        with self.assertRaises(ValueError):
+            ship_3x("c/vrs/xd")
+        # Проверка x_start на принадлежность к [a-j]
+        with self.assertRaises(ValueError):
+            ship_3x("t1-a1")
+        # Проверка y_start на возможность конвертации в int
+        with self.assertRaises(TypeError):
+            ship_3x("at-a1")
+        # Проверка 3 символа cord на -
+        with self.assertRaises(ValueError):
+            ship_3x("a0@a1")
+        # Проверка x_end на принадлежность к [a-j]
+        with self.assertRaises(ValueError):
+            ship_3x("a1-t1")
+        # Проверка y_end на возможность конвертации в int
+        with self.assertRaises(TypeError):
+            ship_3x("a1-at")
+        # Проверка на невозможность создания корабля 1x1
+        with self.assertRaises(ValueError):
+            ship_3x("a0-a0")
+        # Проверка на невозможность создания корабля Nx1 где N больше 3х
+        with self.assertRaises(ValueError):
+            ship_3x("d0-a0")
+            ship_3x("a0-d0")
+        # Проверка на невозможность создания корабля 1xM где M больше 3х
+        with self.assertRaises(ValueError):
+            ship_3x("a3-a0")
+            ship_3x("a0-a3")
+
+    #
+    # Проверка удара по кораблю
+    #
+    def test_hit(self):
+
+        # Проверка на верный тип аргумента
+        self.assertRaises(TypeError, ship_3x("b3-b1").hit, 1)
+        # Проверка на длину аргумента
+        self.assertRaises(ValueError, ship_3x("b3-b1").hit, "c/vrs/xd")
+        # Проверка первого символа на принадлежность к [a-j]
+        self.assertRaises(ValueError, ship_3x("b3-b1").hit, "l1")
+        # Проверка второго символа на возможность преобразовать в int
+        self.assertRaises(TypeError, ship_3x("b3-b1").hit, "ak")
+
+        # Проверка возвращаемого значения после попадания
+        self.assertEqual(ship_3x("b3-b1").hit("b2"), "Попал")
+        # Проверка возвращаемого значения после промаха
+        self.assertEqual(ship_3x("b3-b1").hit("b4"), "Не попал")
+
+        # Проверка статуса корабля после попадания
+        obj = ship_3x("b3-b1")
         obj.hit("b2")
-        self.assertEqual(obj.cells_around_ship, [])
+        self.assertEqual(obj.status, True)
+        obj.hit("b1")
+        self.assertEqual(obj.status, True)
+        obj.hit("b3")
+        self.assertEqual(obj.status, False)
+        # Проверка статуса корабля после промаха
+        obj = ship_3x("b3-b1")
+        obj.hit("b4")
+        self.assertEqual(obj.status, True)
+
+    #
+    # Проверка создания массива клеток вокруг корабля
+    #
+    def test_create_unuseable_cells(self):
+
+        # Проверка x на тип
+        self.assertRaises(TypeError, ship_2x("b2-a2").create_unuseable_cells, "c/vrs/xd", 2)
+        # Проверка y на тип
+        self.assertRaises(TypeError, ship_2x("b2-a2").create_unuseable_cells, 1, "c/vrs/xd")
+
+        # Проверка функции на правильность вывода
+        obj = ship_3x("a0-c0")
+        self.assertEqual(obj.cells_around_ship, [(0,1),(1,1),(2,1),(3,0),(3,1)])
+
+        obj = ship_3x("j9-h9")
+        self.assertEqual(obj.cells_around_ship, [(6,8),(6,9),(7,8),(8,8),(9,8)])
+
+        obj = ship_3x("c3-c5")
+        self.assertEqual(obj.cells_around_ship, [(1,2),(1,3),(1,4),(2,2),(3,2),(3,3),(3,4),(1,5),(3,5),(1,6),(2,6),(3,6)])
+
+
+class test_ship_4x(unittest.TestCase):
+
+    #
+    # Проверка создания обхекта
+    #
+    def test_create(self):
+
+        # Проверка на ошибочный тип cord
+        with self.assertRaises(TypeError):
+            ship_4x(1)
+        # Проверка на длину cord
+        with self.assertRaises(ValueError):
+            ship_4x("c/vrs/xd")
+        # Проверка x_start на принадлежность к [a-j]
+        with self.assertRaises(ValueError):
+            ship_4x("t1-a1")
+        # Проверка y_start на возможность конвертации в int
+        with self.assertRaises(TypeError):
+            ship_4x("at-a1")
+        # Проверка 3 символа cord на -
+        with self.assertRaises(ValueError):
+            ship_4x("a0@a1")
+        # Проверка x_end на принадлежность к [a-j]
+        with self.assertRaises(ValueError):
+            ship_4x("a1-t1")
+        # Проверка y_end на возможность конвертации в int
+        with self.assertRaises(TypeError):
+            ship_4x("a1-at")
+        # Проверка на невозможность создания корабля 1x1
+        with self.assertRaises(ValueError):
+            ship_4x("a0-a0")
+        # Проверка на невозможность создания корабля Nx1 где N больше 4х
+        with self.assertRaises(ValueError):
+            ship_4x("e0-a0")
+            ship_4x("a0-e0")
+        # Проверка на невозможность создания корабля 1xM где M больше 4х
+        with self.assertRaises(ValueError):
+            ship_4x("a4-a0")
+            ship_4x("a0-a4")
+
+    #
+    # Проверка удара по кораблю
+    #
+    def test_hit(self):
+
+        # Проверка на верный тип аргумента
+        self.assertRaises(TypeError, ship_4x("b4-b1").hit, 1)
+        # Проверка на длину аргумента
+        self.assertRaises(ValueError, ship_4x("b4-b1").hit, "c/vrs/xd")
+        # Проверка первого символа на принадлежность к [a-j]
+        self.assertRaises(ValueError, ship_4x("b4-b1").hit, "l1")
+        # Проверка второго символа на возможность преобразовать в int
+        self.assertRaises(TypeError, ship_4x("b4-b1").hit, "ak")
+
+        # Проверка возвращаемого значения после попадания
+        self.assertEqual(ship_4x("b4-b1").hit("b2"), "Попал")
+        # Проверка возвращаемого значения после промаха
+        self.assertEqual(ship_4x("b4-b1").hit("b5"), "Не попал")
+
+        # Проверка статуса корабля после попадания
+        obj = ship_4x("b4-b1")
+        obj.hit("b2")
+        self.assertEqual(obj.status, True)
+        obj.hit("b1")
+        self.assertEqual(obj.status, True)
+        obj.hit("b3")
+        self.assertEqual(obj.status, True)
+        obj.hit("b4")
+        self.assertEqual(obj.status, False)
+        # Проверка статуса корабля после промаха
+        obj = ship_4x("b4-b1")
+        obj.hit("b5")
+        self.assertEqual(obj.status, True)
+
+    #
+    # Проверка создания массива клеток вокруг корабля
+    #
+    def test_create_unuseable_cells(self):
+
+        # Проверка x на тип
+        self.assertRaises(TypeError, ship_2x("b2-a2").create_unuseable_cells, "c/vrs/xd", 2)
+        # Проверка y на тип
+        self.assertRaises(TypeError, ship_2x("b2-a2").create_unuseable_cells, 1, "c/vrs/xd")
+
+        # Проверка функции на правильность вывода
+        obj = ship_3x("a0-c0")
+        self.assertEqual(obj.cells_around_ship, [(0,1),(1,1),(2,1),(3,0),(3,1)])
+
+        obj = ship_3x("j9-h9")
+        self.assertEqual(obj.cells_around_ship, [(6,8),(6,9),(7,8),(8,8),(9,8)])
+
+        obj = ship_3x("c3-c5")
+        self.assertEqual(obj.cells_around_ship, [(1,2),(1,3),(1,4),(2,2),(3,2),(3,3),(3,4),(1,5),(3,5),(1,6),(2,6),(3,6)])
+
 
 
 
